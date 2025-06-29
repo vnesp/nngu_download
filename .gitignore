@@ -1,1 +1,3 @@
 base.db
+*.html
+__pycache__

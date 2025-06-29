@@ -32,24 +32,25 @@ CREATE TABLE IF NOT EXISTS Specializations (
     ID   INTEGER    NOT NULL
                     UNIQUE
                     PRIMARY KEY,
+    Cod  TEXT (20)  NOT NULL,
     Name TEXT (100) UNIQUE
                     NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS SpecializationVariants (
-    ID       INTEGER    PRIMARY KEY
+    ID   INTEGER    PRIMARY KEY
                         NOT NULL
                         UNIQUE,
-    Name     TEXT (100) NOT NULL,
-    Cod      TEXT (20)  NOT NULL,
-    Quantity INTEGER    NOT NULL
+    SpecID INTEGER  REFERENCES Abiturients (ID) 
+                        NOT NULL,
+    Name TEXT (100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Abiturients (
     ID  INTEGER   PRIMARY KEY
                   NOT NULL
                   UNIQUE,
-    Kod TEXT (20) UNIQUE
+    Cod TEXT (20) UNIQUE
                   NOT NULL
 );
 
