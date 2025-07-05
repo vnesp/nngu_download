@@ -3,6 +3,27 @@ import bs4
 import re
 import db
 
+def proceed(facId, specId, finId, formId):
+    print(f'GET fac {facId}, spec {specId}, fin {finId}, form {formId}')
+    table = bs4.BeautifulSoup(
+        api.show(1, 1, spec=specId, fac=facId, fin=finId, form=formId),
+        'html.parser'
+    ).find('table', {'id': 'jtable'})
+    specVarId = specId[15:]
+    for row in table.tbody.findChildren('tr', recursive=False):
+        cells = row.findChildren('td', recursive=False)
+        res = re.fullmatch('\d+\. (.*?)(\. Количество мест: (\d+))?', cells[0].text)
+        assert res, cells[0].text
+        if res.group(1) == 'Бюджет (общий конкурс)':
+            print(f'NumPlaces = {res.group(3)}')
+            db.insert('Direction', (None, facId, specVarId, finId, formId, res.group(3)))
+            break
+    else:
+        db.insert('Direction', (None, facId, specVarId, finId, formId, 0))
+    # with open('show.html', 'wb') as file:
+    #     file.write(page)
+
+
 facIds = db.select('Faculties', 'ID')
 
 for facId, in facIds:
@@ -20,10 +41,7 @@ for facId, in facIds:
                     formId = option['value']
                     if formId == '-1':
                         continue
-                    page = api.show(1, 1, spec=specId, fac=facId, fin=finId, form=formId)
-                    with open('show.html', 'wb') as file:
-                        file.write(page)
-                    exit()
+                    proceed(facId, specId, finId, formId)
 
             if specId == '-1':
                 return
@@ -38,60 +56,5 @@ for facId, in facIds:
             getFins(option['value'])
 
     getSpecs()
-    break
 
-exit()
-
-menu = bs4.BeautifulSoup(api.menu(1, 1), 'html.parser')
-
-structure = {
-    'form': {
-        'regexp': (r'(\d)', r'(.*)'),
-        'saveto': [{
-            'table': 'FormEducations',
-            'record': ((0,1), (1,1))
-        }]
-    },
-    'fac': {
-        'regexp': (r'(\d{15})', r'(.*)'),
-        'saveto': [{
-            'table': 'Faculties',
-            'record': ((0,1), (1,1))
-        }]
-    },
-    'fin': {
-        'regexp': (r'(\d{15})', r'(.*)'),
-        'saveto': [{
-            'table': 'FundingSources',
-            'record': ((0,1), (1,1))
-        }]
-    },
-    'spec': {
-        'regexp': (r'(\d{15})(\d{15})', r'(.*?) \((\d{2}\.\d{2}\.\d{2})\)  / (.*)'),
-        'saveto': [{
-            'table': 'Specializations',
-            'record': ((0,1), (1,2), (1,1))
-        },{
-            'table': 'SpecializationVariants',
-            'record': ((0,2), (0,1), (1,3))
-        }]
-    }
-}
-
-for select in menu.findChildren('select'):
-    obj = structure.get(select['name'])
-    if obj is None:
-        continue
-    regexp = obj['regexp']
-    saveto = obj['saveto']
-    for option in select.findChildren('option'):
-        _id = option['value']
-        if _id == '-1':
-            continue
-        res = (
-            re.fullmatch(regexp[0], _id),
-            re.fullmatch(regexp[1], option.text)
-        )
-        assert all(res)
-        for item in saveto:
-            db.insert(item['table'], tuple(res[i].group(j) for i, j in item['record']))
+db.flush()
