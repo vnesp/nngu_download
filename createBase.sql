@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS ExamTypes (
     ID   INTEGER    PRIMARY KEY
                     UNIQUE
                     NOT NULL,
-    Name TEXT (100) 
+    Name TEXT (100)
 );
 
 CREATE TABLE IF NOT EXISTS Faculties (
@@ -41,9 +41,24 @@ CREATE TABLE IF NOT EXISTS SpecializationVariants (
     ID   INTEGER    PRIMARY KEY
                         NOT NULL
                         UNIQUE,
-    SpecID INTEGER  REFERENCES Abiturients (ID) 
+    SpecID INTEGER  REFERENCES Specializations(ID)
                         NOT NULL,
     Name TEXT (100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Direction (
+    ID            INTEGER    PRIMARY KEY
+                             NOT NULL
+                             UNIQUE,
+    FacultyID     INTEGER    REFERENCES Faculties (ID)
+                             NOT NULL,
+    SpecVarID     INTEGER    REFERENCES SpecializationVariants (ID)
+                             NOT NULL,
+    FinID         INTEGER    REFERENCES FundingSources (ID)
+                             NOT NULL,
+    FormID        INTEGER    REFERENCES FormEducations (ID)
+                             NOT NULL,
+    NumPlaces     INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS Abiturients (
@@ -58,21 +73,21 @@ CREATE TABLE IF NOT EXISTS Prioritets (
     ID            INTEGER    UNIQUE
                              NOT NULL
                              PRIMARY KEY,
-    AbiturientID  INTEGER    REFERENCES Abiturients (ID) 
+    AbiturientID  INTEGER    REFERENCES Abiturients (ID)
                              NOT NULL,
-    FacultyID     INTEGER    REFERENCES Faculties (ID) 
+    FacultyID     INTEGER    REFERENCES Faculties (ID)
                              NOT NULL,
-    SpecID        INTEGER    REFERENCES Specializations (ID) 
+    SpecID        INTEGER    REFERENCES Specializations (ID)
                              NOT NULL,
     SpecVariantID INTEGER    REFERENCES SpecializationVariants (ID),
     Prioritet     INTEGER    NOT NULL,
     Status        TEXT (100) NOT NULL,
     NumSpis       INTEGER    NOT NULL,
     NumIfOrig     INTEGER    NOT NULL,
-    FormEdID      INTEGER    REFERENCES FormEducations (ID) 
+    FormEdID      INTEGER    REFERENCES FormEducations (ID)
                              NOT NULL,
     FunSourceID   INTEGER    NOT NULL
-                             REFERENCES FundingSources (ID) 
+                             REFERENCES FundingSources (ID)
 );
 
 CREATE TABLE IF NOT EXISTS DynamicLists (
@@ -96,5 +111,5 @@ CREATE TABLE IF NOT EXISTS DynamicLists (
     Privilege1      TEXT (100),
     Privilege2      TEXT (100),
     Privilege3      TEXT (100),
-    ExamTypeID      INTEGER    REFERENCES ExamTypes (ID) 
+    ExamTypeID      INTEGER    REFERENCES ExamTypes (ID)
 );

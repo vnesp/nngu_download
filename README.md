@@ -15,7 +15,7 @@ pip install beautifulsoup4
 Создание базы
 
 ``` bash
-sqlite3 base.db < create_base.sql
+sqlite3 base.db < createBase.sql
 ```
 
 Заполнение вспомогательных таблиц

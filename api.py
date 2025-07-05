@@ -38,3 +38,14 @@ def menu(list, level, spec=-1, fac=-1, fin=-1, form=-1, dop=0):
         'form': form,
         'dop': dop,
     })
+
+def show(list, level, spec=-1, fac=-1, fin=-1, form=-1, dop=0):
+    return get('show', {
+        'list': list,
+        'level': level,
+        'spec': spec,
+        'fac': fac,
+        'fin': fin,
+        'form': form,
+        'dop': dop,
+    })
