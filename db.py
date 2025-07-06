@@ -11,6 +11,12 @@ def insert(table, record):
     """, record)
 
 
+def insertmany(table, numFields, records):
+    cursor.executemany(f"""
+        INSERT OR IGNORE INTO {table}
+            VALUES (?{',?' * (numFields - 1)})
+    """, records)
+
 def select(table, fields = '*'):
     if not isinstance(fields, list):
         fields = [fields]
