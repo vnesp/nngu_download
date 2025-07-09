@@ -80,7 +80,7 @@ def getForms(facId, specId, finId):
 def getFins(facId, specId):
     if specId == '-1':
         return
-    print('  Get Fins from spec = ', specId)
+    print('  Get Fins from spec =', specId)
     menu = bs4.BeautifulSoup(api.menu(1, 1, spec=specId, fac=facId), 'html5lib')
     select = menu.find('select', {'id': 'fin'})
     for option in select.findChildren('option', recursive=False):
@@ -88,7 +88,7 @@ def getFins(facId, specId):
 
 
 def getSpecs(facId):
-    print('Get spec from fac = ', facId)
+    print('Get spec from fac =', facId)
     menu = bs4.BeautifulSoup(api.menu(1, 1, fac=facId), 'html5lib')
     select = menu.find('select', {'id': 'spec'})
     for option in select.findChildren('option', recursive=False):
