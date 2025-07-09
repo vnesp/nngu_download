@@ -7,10 +7,12 @@
 * `fillTables.py` - скрипт для заполнения таблиц факультетов, специальностей, финансирования и форм обучения
 * `fillTables2.py` - скрипт для заполнения таблицы направлений с количеством бюджетных мест, статусов, абитуриентов и динамических списков
 
-Установка BeautifulSoup
+Установка BeautifulSoup, html5lib и requests
 
 ``` bash
 pip install beautifulsoup4
+pip install html5lib
+pip install requests
 ```
 
 Создание базы

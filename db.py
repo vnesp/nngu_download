@@ -5,25 +5,25 @@ cursor = conn.cursor()
 
 
 def insert(table, record):
-    cursor.execute(f"""
-        INSERT OR IGNORE INTO {table}
-            VALUES (?{',?' * (len(record) - 1)})
-    """, record)
+    cursor.execute("""
+        INSERT OR IGNORE INTO {}
+            VALUES (?{})
+    """.format(table, ',?' * (len(record) - 1)), record)
 
 
 def insertmany(table, numFields, records):
-    cursor.executemany(f"""
-        INSERT OR IGNORE INTO {table}
-            VALUES (?{',?' * (numFields - 1)})
-    """, records)
+    cursor.executemany("""
+        INSERT OR IGNORE INTO {}
+            VALUES (?{})
+    """.format(table, ',?' * (numFields - 1)), records)
 
 def select(table, fields = '*'):
     if not isinstance(fields, list):
         fields = [fields]
-    cursor.execute(f"""
-        SELECT {','.join(fields)}
-          FROM {table}
-    """)
+    cursor.execute("""
+        SELECT {}
+          FROM {}
+    """.format(','.join(fields), table))
     return cursor.fetchall()
 
 

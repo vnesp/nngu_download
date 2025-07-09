@@ -14,14 +14,15 @@ def getClass(soup):
 
 
 def proceed(facId, specId, finId, formId):
-    print(f'GET fac {facId}, spec {specId}, fin {finId}, form {formId}')
+    print('      GET fac {}, spec {}, fin {}, form {}'.format(facId, specId, finId, formId))
     page = api.show(1, 1, spec=specId, fac=facId, fin=finId, form=formId)
     with open('show.html', 'wb') as file:
         file.write(page)
-    table = bs4.BeautifulSoup(page,'html.parser').find('table', {'id': 'jtable'})
+    table = bs4.BeautifulSoup(page,'html5lib').find('table', {'id': 'jtable'})
     specVarId = specId[15:]
     dirKey = (facId, specVarId, finId, formId)
     dirId, NumPlaces = dir.get(dirKey, (len(dir), 0))
+    countItems = 0
     for row in table.tbody.findChildren('tr', recursive=False):
         cells = row.findChildren('td', recursive=False)
         assert len(cells) == 12, cells
@@ -56,15 +57,18 @@ def proceed(facId, specId, finId, formId):
             cells[10].text,                     # MarkAchievemnt
             statusId                            # StatusID
         ))
+        countItems += 1
 
     if NumPlaces:
-        print(f'NumPlaces = {NumPlaces}')
+        print('      NumPlaces =', NumPlaces)
+    print('      Abiturients: ', countItems, ' added')
     dir[dirKey] = (dirId, NumPlaces)
 
 def getForms(facId, specId, finId):
     if finId == '-1':
         return
-    menu = bs4.BeautifulSoup(api.menu(1, 1, spec=specId, fac=facId, fin=finId), 'html.parser')
+    print('    Get Forms from fin =', finId)
+    menu = bs4.BeautifulSoup(api.menu(1, 1, spec=specId, fac=facId, fin=finId), 'html5lib')
     select = menu.find('select', {'id': 'form'})
     for option in select.findChildren('option', recursive=False):
         formId = option['value']
@@ -76,20 +80,23 @@ def getForms(facId, specId, finId):
 def getFins(facId, specId):
     if specId == '-1':
         return
-    menu = bs4.BeautifulSoup(api.menu(1, 1, spec=specId, fac=facId), 'html.parser')
+    print('  Get Fins from spec = ', specId)
+    menu = bs4.BeautifulSoup(api.menu(1, 1, spec=specId, fac=facId), 'html5lib')
     select = menu.find('select', {'id': 'fin'})
     for option in select.findChildren('option', recursive=False):
         getForms(facId, specId, option['value'])
 
 
 def getSpecs(facId):
-    menu = bs4.BeautifulSoup(api.menu(1, 1, fac=facId), 'html.parser')
+    print('Get spec from fac = ', facId)
+    menu = bs4.BeautifulSoup(api.menu(1, 1, fac=facId), 'html5lib')
     select = menu.find('select', {'id': 'spec'})
     for option in select.findChildren('option', recursive=False):
         getFins(facId, option['value'])
 
-
-for facId, in db.select('Faculties', 'ID'):
+facIds = db.select('Faculties', 'ID')
+print('Faculties =', facIds); 
+for facId, in facIds:
     getSpecs(facId)
 db.flush()
 

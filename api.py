@@ -5,7 +5,7 @@ BASE_URL = 'https://abiturient.unn.ru/list'
 session = requests.session()
 
 def get(cmd, params = None):
-    response = session.get(f'{BASE_URL}/{cmd}.php', params=params)
+    response = session.get('{}/{}.php'.format(BASE_URL, cmd), params=params)
     response.raise_for_status()
     return response.content
 

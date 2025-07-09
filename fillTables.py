@@ -3,7 +3,7 @@ import bs4
 import re
 import db
 
-menu = bs4.BeautifulSoup(api.menu(1, 1), 'html.parser')
+menu = bs4.BeautifulSoup(api.menu(1, 1), 'html5lib')
 
 structure = {
     'form': {

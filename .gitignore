@@ -1,3 +1,4 @@
+# exclude base, htmls and cache
 base.db
 *.html
 __pycache__
