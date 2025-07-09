@@ -7,7 +7,7 @@ session = requests.session()
 def get(cmd, params = None):
     response = session.get('{}/{}.php'.format(BASE_URL, cmd), params=params)
     response.raise_for_status()
-    return response.content
+    return response.content.decode('utf8')
 
 def index(list, level):
     """ Get Index

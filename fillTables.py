@@ -54,6 +54,7 @@ for select in menu.findChildren('select'):
             re.fullmatch(regexp[1], option.text)
         )
         assert all(res)
+        print(res[1].groups())
         for item in saveto:
             db.insert(item['table'], tuple(res[i].group(j) for i, j in item['record']))
 

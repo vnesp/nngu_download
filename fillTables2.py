@@ -16,7 +16,7 @@ def getClass(soup):
 def proceed(facId, specId, finId, formId):
     print('      GET fac {}, spec {}, fin {}, form {}'.format(facId, specId, finId, formId))
     page = api.show(1, 1, spec=specId, fac=facId, fin=finId, form=formId)
-    with open('show.html', 'wb') as file:
+    with open('show.html', 'w', encoding='utf8') as file:
         file.write(page)
     table = bs4.BeautifulSoup(page,'html5lib').find('table', {'id': 'jtable'})
     specVarId = specId[15:]

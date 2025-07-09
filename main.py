@@ -57,11 +57,11 @@ def getPriorities(url, AbiturientID):
         )
 
 page = requests.get(url, params)
-soup = BeautifulSoup(page.content, 'html.parser')
+soup = BeautifulSoup(page.content.decode('utf8'), 'html5lib')
 table = soup.find('table', {'id': 'jtable'})
 for row in table.tbody.findChildren('tr', recursive=False):
     cells = row.findChildren('td', recursive=False)
-    if cells[1].has_attr('colspan'):
+    if 'displaynone' in cells[1].get('class', []) or cells[1].has_attr('colspan'):
         continue
     # for idx, cell in enumerate(cells):
     #     print(idx, cell)
@@ -83,6 +83,7 @@ for row in table.tbody.findChildren('tr', recursive=False):
         'type': cells[18].string,
         'status': cells[19].span.string
     }
-    # print(obj)
+    print(obj)
+    break
     AbuturientID = getId('Abiturients', 'Cod', obj['code'])
     getPriorities(obj['url'], AbuturientID)
