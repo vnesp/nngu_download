@@ -4,7 +4,7 @@ import re
 import db
 
 abit = {}
-dir = {}
+dir = []
 status = {}
 quotes = {}
 
@@ -23,18 +23,24 @@ def proceed(facId, specId, finId, formId):
     table = bs4.BeautifulSoup(page,'html5lib').find('table', {'id': 'jtable'})
     specVarId = specId[15:]
     countItems = 0
+    dirIdForList = {}
     for row in table.tbody.findChildren('tr', recursive=False):
         cells = row.findChildren('td', recursive=False)
         assert len(cells) == 12, cells
-        res = re.fullmatch('\d+\. (.*?)(\. Количество мест: (\d+))?', cells[0].text)
+        res = re.fullmatch('(\d+)\. (.*?)(\. Количество мест: (\d+))?', cells[0].text)
         assert res, cells[0].text
-        quoteName, NumPlaces = res.group(1, 3)
+        listCount, quoteName, numPlaces = res.group(1, 2, 4)
         quoteId = quotes.get(quoteName, len(quotes))
         quotes[quoteName] = quoteId
-        dirKey = (facId, specVarId, finId, formId, quoteId)
-        dirId, NumPlacesCheck = dir.get(dirKey, (len(dir), NumPlaces))
-        assert NumPlacesCheck == NumPlaces, (dirKey, NumPlaces, NumPlacesCheck)
-        dir[dirKey] = (dirId, NumPlaces)
+        dirValue = (facId, specVarId, finId, formId, quoteId, numPlaces)
+        if listCount in dirIdForList:
+            dirId = dirIdForList[listCount]
+            assert dir[dirId] == dirValue, (dir[dirId], dirValue)
+        else:
+            dirId = len(dir)
+            dirIdForList[listCount] = dirId
+            print('      New direction', dirValue)
+            dir.append(dirValue)
         if 'displaynone' in cells[1].get('class', []) or cells[1].has_attr('colspan'):
             continue
         abitId = int(cells[2].a['href'].split('=')[1])
@@ -63,7 +69,7 @@ def proceed(facId, specId, finId, formId):
         ))
         countItems += 1
 
-    print('      Abiturients: ', countItems, ' added')
+    print('      Abiturients:', countItems, 'added')
 
 
 def getForms(facId, specId, finId):
@@ -105,7 +111,7 @@ db.flush()
 db.insertmany('Abiturients', 2, abit.items())
 db.flush()
 
-db.insertmany('Directions', 6, ((id, *key, num) for key, (id, num) in dir.items()))
+db.insertmany('Directions', 7, ((id, *value) for id, value in enumerate(dir)))
 db.flush()
 
 db.insertmany('Statuses', 2, ((id, text) for text, id in status.items()))
