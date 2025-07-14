@@ -28,6 +28,15 @@ CREATE TABLE IF NOT EXISTS FundingSources (
                                 NOT NULL
 );
 
+
+CREATE TABLE IF NOT EXISTS Quotes (
+    ID              INTEGER     PRIMARY KEY
+                                NOT NULL
+                                UNIQUE,
+    Name            TEXT (150)  UNIQUE
+                                NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS Statuses (
     ID              INTEGER     PRIMARY KEY
                                 NOT NULL
@@ -65,6 +74,8 @@ CREATE TABLE IF NOT EXISTS Directions (
     FinID           INTEGER     REFERENCES FundingSources (ID)
                                 NOT NULL,
     FormID          INTEGER     REFERENCES FormEducations (ID)
+                                NOT NULL,
+    QuoteID         INTEGER     REFERENCES Quotes (ID)
                                 NOT NULL,
     NumPlaces       INTEGER
 );

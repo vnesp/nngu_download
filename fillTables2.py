@@ -6,6 +6,8 @@ import db
 abit = {}
 dir = {}
 status = {}
+quotes = {}
+
 
 def getClass(soup):
     for cls in soup['class']:
@@ -20,17 +22,19 @@ def proceed(facId, specId, finId, formId):
         file.write(page)
     table = bs4.BeautifulSoup(page,'html5lib').find('table', {'id': 'jtable'})
     specVarId = specId[15:]
-    dirKey = (facId, specVarId, finId, formId)
-    dirId, NumPlaces = dir.get(dirKey, (len(dir), 0))
     countItems = 0
     for row in table.tbody.findChildren('tr', recursive=False):
         cells = row.findChildren('td', recursive=False)
         assert len(cells) == 12, cells
-        if not NumPlaces:
-            res = re.fullmatch('\d+\. (.*?)(\. Количество мест: (\d+))?', cells[0].text)
-            assert res, cells[0].text
-            if res.group(1) == 'Бюджет (общий конкурс)':
-                NumPlaces = int(res.group(3))
+        res = re.fullmatch('\d+\. (.*?)(\. Количество мест: (\d+))?', cells[0].text)
+        assert res, cells[0].text
+        quoteName, NumPlaces = res.group(1, 3)
+        quoteId = quotes.get(quoteName, len(quotes))
+        quotes[quoteName] = quoteId
+        dirKey = (facId, specVarId, finId, formId, quoteId)
+        dirId, NumPlacesCheck = dir.get(dirKey, (len(dir), NumPlaces))
+        assert NumPlacesCheck == NumPlaces, (dirKey, NumPlaces, NumPlacesCheck)
+        dir[dirKey] = (dirId, NumPlaces)
         if 'displaynone' in cells[1].get('class', []) or cells[1].has_attr('colspan'):
             continue
         abitId = int(cells[2].a['href'].split('=')[1])
@@ -59,10 +63,8 @@ def proceed(facId, specId, finId, formId):
         ))
         countItems += 1
 
-    if NumPlaces:
-        print('      NumPlaces =', NumPlaces)
     print('      Abiturients: ', countItems, ' added')
-    dir[dirKey] = (dirId, NumPlaces)
+
 
 def getForms(facId, specId, finId):
     if finId == '-1':
@@ -107,4 +109,7 @@ db.insertmany('Directions', 6, ((id, *key, num) for key, (id, num) in dir.items(
 db.flush()
 
 db.insertmany('Statuses', 2, ((id, text) for text, id in status.items()))
+db.flush()
+
+db.insertmany('Quotes', 2, ((id, text) for text, id in quotes.items()))
 db.flush()
